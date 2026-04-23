@@ -134,6 +134,54 @@ def manage_notes():
             print("Invalid choice!")
 
 
+#! Manage Tag
+def add_tags(name):
+    db = SessionLocal()
+    try:
+        new_tag = Tag(name=name)
+
+        db.add(new_tag)
+
+        db.commit()
+        db.refresh(new_tag)
+        print(f"Note is created with title : {name}")
+
+    except Exception as e:
+        db.rollback()
+        print("Error : ",e)
+
+    finally:
+        db.close()
+
+def show_all_tags():
+    db = SessionLocal()
+    try:
+        data = db.query(Tag).all()
+        print("All Tag")
+        for tag in data:
+            print(f"title : {tag.name} ")
+
+    except Exception as e:
+        db.rollback()
+        print("Error ",e)
+    finally:
+        db.close()
+
+def delete_tag_by_id(id):
+    db = SessionLocal()
+    try:
+        data = db.query(Tag).filter(Tag.id == id).first()
+        db.delete(data)
+        db.commit()
+
+        print("Tag Deleted")
+    except Exception as e:
+        db.rollback()
+        print("Error ",e)
+    finally:
+        db.close()
+
+
 def manage_tags():
     while True:
         print("\n--- MANAGE TAGS ---")
@@ -146,14 +194,14 @@ def manage_tags():
 
         if choice == "1":
             name = input("Enter tag name: ")
-            pass  # insert tag
+            add_tags(name)  # insert tag
 
         elif choice == "2":
-            pass  # view tags
+            show_all_tags()  # view tags
 
         elif choice == "3":
             tag_id = input("Enter tag ID: ")
-            pass  # delete tag
+            delete_tag_by_id(tag_id)  # delete tag
 
         elif choice == "4":
             break
