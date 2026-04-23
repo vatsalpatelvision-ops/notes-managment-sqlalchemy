@@ -1,5 +1,6 @@
 from models import Note , Tag, NoteTag
 from database import engine , SessionLocal , Base
+from sqlalchemy import func,desc,or_
 
 Base.metadata.create_all(bind=engine)
 
@@ -209,6 +210,8 @@ def manage_tags():
             print("Invalid choice!")
 
 
+#!Functions for tag operations 
+
 def add_tag_to_note(note_id,tag_id):
     db = SessionLocal()
     try:
@@ -349,6 +352,76 @@ def tag_operations():
         else:
             print("Invalid choice!")
 
+#! Fucntions for search reports
+
+def count_notes_per_tag():
+    db = SessionLocal()
+    try:
+        results = db.query(
+            Tag.name,
+            func.count(NoteTag.note_id)
+        ).join(NoteTag).group_by(Tag.id).all()
+
+        if not results:
+            print("No data found.")
+            return
+
+        print("\nNotes per Tag:")
+        for name, count in results:
+            print(f"{name} -> {count}")
+
+    except Exception as e:
+        db.rollback()
+    finally:
+        db.close()
+
+def search_notes_by_keyword():
+    db = SessionLocal()
+    keyword = input("Enter keyword: ")
+
+    results = db.query(Note).filter(
+        or_(
+            Note.title.ilike(f"%{keyword}%"),
+            Note.content.ilike(f"%{keyword}%")
+        )
+    ).all()
+
+    if not results:
+        print("No matching notes found.")
+        return
+
+    for note in results:
+        print(f"{note.id} | {note.title}")
+
+
+def most_used_tag():
+    db = SessionLocal()
+    result = db.query(
+        Tag.name,
+        func.count(NoteTag.note_id).label("total")
+    ).join(NoteTag)\
+     .group_by(Tag.id)\
+     .order_by(func.count(NoteTag.note_id).desc())\
+     .first()
+
+    if result:
+        print(f"Most used tag: {result.name} ({result.total})")
+    else:
+        print("No tags found.")
+
+def notes_without_tags():
+    db = SessionLocal()
+    results = db.query(Note)\
+        .outerjoin(NoteTag)\
+        .filter(NoteTag.id == None)\
+        .all()
+
+    if not results:
+        print("All notes have tags.")
+        return
+
+    for note in results:
+        print(f"{note.id} | {note.title}")
 
 def search_reports():
     while True:
@@ -362,25 +435,21 @@ def search_reports():
         choice = input("Enter choice: ")
 
         if choice == "1":
-            keyword = input("Enter keyword: ")
-            pass  # LIKE query
+            search_notes_by_keyword() # LIKE query
 
         elif choice == "2":
-            pass  # GROUP BY + COUNT
+            count_notes_per_tag()  # GROUP BY + COUNT
 
         elif choice == "3":
-            pass  # ORDER BY DESC LIMIT 1
+            most_used_tag()  # ORDER BY DESC LIMIT 1
 
         elif choice == "4":
-            pass  # LEFT JOIN / subquery
+            notes_without_tags()  # LEFT JOIN / subquery
 
         elif choice == "5":
             break
         else:
             print("Invalid choice!")
-
-
-
 
 
 
