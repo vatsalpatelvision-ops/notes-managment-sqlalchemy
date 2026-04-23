@@ -50,7 +50,49 @@ def add_notes(title,content):
     finally:
         db.close()
 
+def show_all_notes():
+    db = SessionLocal()
+    try:
+        data = db.query(Note).all()
+        print("All notes")
+        for note in data:
+            print(f"title : {note.title} ")
 
+    except Exception as e:
+        db.rollback()
+        print("Error ",e)
+    finally:
+        db.close()
+
+def update_note_by_id(id,title,content):
+    db = SessionLocal()
+    try:
+        data = db.query(Note).filter(Note.id == id).first()
+
+        data.title = title
+        data.content = content
+
+        db.commit()
+        db.refresh(data)
+        print("Record Updated")
+    except Exception as e:
+        db.rollback()
+        print("Error ",e)
+    finally:
+        db.close()
+
+def delete_note(id):
+    db = SessionLocal()
+    try:
+        data = db.query(Note).filter(Note.id == id).first()
+        db.delete(data)
+        db.commit()
+        print("User deleted")
+    except Exception as e:
+        db.rollback()
+        print("Error ",e)
+    finally:
+        db.close()
 
 
 
@@ -74,17 +116,17 @@ def manage_notes():
                 print("Missing information")
 
         elif choice == "2":
-            pass  # fetch and display notes
+            show_all_notes()  # fetch and display notes
 
         elif choice == "3":
             note_id = input("Enter note ID: ")
             new_title = input("Enter new title: ")
             new_content = input("Enter new content: ")
-            pass  # update note
+            update_note_by_id(note_id,new_title,new_content)  # update note
 
         elif choice == "4":
             note_id = input("Enter note ID: ")
-            pass  # delete note
+            delete_note(note_id)  # delete note
 
         elif choice == "5":
             break
