@@ -1,0 +1,170 @@
+### 1. Note
+
+* id
+* title
+* content
+* created_at
+
+---
+
+### 2. Tag
+
+* id
+* name
+
+---
+
+### 3. NoteTag (IMPORTANT)
+
+* id
+* note_id (FK)
+* tag_id (FK)
+
+
+## MAIN MENU
+
+1. Manage Notes
+2. Manage Tags
+3. Tag Operations
+4. Search / Reports
+5. Exit
+
+---
+
+## MANAGE NOTES
+
+---
+
+### 1. Add Note
+
+* Input: title, content
+* Action: insert into DB
+
+---
+
+### 2. View Notes
+
+* Show all notes with IDs
+
+---
+
+### 3. Update Note
+
+* Select note by ID
+* Update title/content
+
+---
+
+### 4. Delete Note
+
+* Select note by ID
+* Delete from DB
+
+---
+
+### 5. Back to Main Menu
+
+---
+
+## MANAGE TAGS
+
+---
+
+### 1. Add Tag
+
+* Input: tag name
+* Action: insert into DB
+
+---
+
+### 2. View Tags
+
+* Show all tags with IDs
+
+---
+
+### 3. Delete Tag
+
+* Select tag by ID
+* Delete from DB
+
+---
+
+### 4. Back
+
+---
+
+## TAG OPERATIONS
+
+---
+
+### 1. Add Tag to Note
+
+* Input: note_id, tag_id
+* Check:
+
+  * note exists
+  * tag exists
+  * not already linked
+* Then insert into NoteTag
+
+---
+
+### 2. Remove Tag from Note
+
+* Input: note_id, tag_id
+* Delete from NoteTag
+
+---
+
+### 3. View Tags of a Note
+
+* Input: note_id
+* Show all related tags
+
+---
+
+### 4. View Notes by Tag
+
+* Input: tag_id
+* Show all related notes
+
+---
+
+### 5. Back
+
+---
+
+## SEARCH / REPORTS
+
+---
+
+### 1. Search Notes by Keyword
+
+* Input: keyword
+* Search in title/content (`LIKE`)
+
+---
+
+### 2. Count Notes per Tag
+
+* Use `GROUP BY` + `COUNT`
+
+---
+
+### 3. Most Used Tag
+
+* Order by count DESC
+* Show top result
+
+---
+
+### 4. Notes Without Tags
+
+* Use LEFT JOIN / subquery
+
+---
+
+### 5. Back
+
+---
