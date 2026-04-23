@@ -209,6 +209,112 @@ def manage_tags():
             print("Invalid choice!")
 
 
+def add_tag_to_note(note_id,tag_id):
+    db = SessionLocal()
+    try:
+        note = db.get(Note, note_id)
+        tag = db.get(Tag, tag_id)
+
+        if not note:
+            print("Note not found")
+            return
+        
+        if not tag:
+            print("Tag not found")
+            return
+        
+        existing = db.query(NoteTag).filter_by(note_id = note_id,tag_id = tag_id).first()
+
+        if existing:
+            print("Tag is already linked to this note")
+            return
+        
+        link = NoteTag(note_id= note_id , tag_id = tag_id)
+        db.add(link)
+        db.commit()
+        db.refresh(link)
+
+        print("Tag added to note")
+
+    except Exception as e:
+        db.rollback()
+        print("Error ",e)
+    finally:
+        db.close()
+
+def remove_tag_from_note(note_id,tag_id):
+    db = SessionLocal()
+    try:
+        note = db.get(Note, note_id)
+        tag = db.get(Tag, tag_id)
+
+        if not note:
+            print("Note not found")
+            return
+        
+        if not tag:
+            print("Tag not found")
+            return
+        
+        existing = db.query(NoteTag).filter_by(note_id = note_id,tag_id = tag_id).first()
+
+        if not existing:
+            print("Tag is not linked to this note")
+            return
+        
+        # link = NoteTag(note_id= note_id , tag_id = tag_id)
+        db.delete(existing)
+        db.commit()
+        # db.refresh(link)
+
+        print("Tag removed from the note")
+
+    except Exception as e:
+        db.rollback()
+        print("Error ",e)
+    finally:
+        db.close()
+
+
+def view_tags_of_note(note_id):
+    db = SessionLocal()
+    note = db.get(Note, note_id)
+    if not note:
+        print("Note not found!")
+        return
+
+    tags = db.query(Tag).join(NoteTag).filter(
+        NoteTag.note_id == note_id
+    ).all()
+
+    if not tags:
+        print("No tags found.")
+        return
+
+    print("\nTags:")
+    for tag in tags:
+        print(f"{tag.id} - {tag.name}")
+
+
+def view_notes_by_tag(tag_id):
+    db = SessionLocal()
+    tag = db.get(Tag, tag_id)
+    if not tag:
+        print("Tag not found!")
+        return
+
+    notes = db.query(Note).join(NoteTag).filter(
+        NoteTag.tag_id == tag_id
+    ).all()
+
+    if not notes:
+        print("No notes found.")
+        return
+
+    print("\nNotes:")
+    for note in notes:
+        print(f"{note.id} - {note.title}")
+
 def tag_operations():
     while True:
         print("\n--- TAG OPERATIONS ---")
@@ -223,20 +329,20 @@ def tag_operations():
         if choice == "1":
             note_id = input("Enter note ID: ")
             tag_id = input("Enter tag ID: ")
-            pass  # validate + insert into NoteTag
+            add_tag_to_note(note_id,tag_id)  # validate + insert into NoteTag
 
         elif choice == "2":
             note_id = input("Enter note ID: ")
             tag_id = input("Enter tag ID: ")
-            pass  # delete from NoteTag
+            remove_tag_from_note(note_id,tag_id)  # delete from NoteTag
 
         elif choice == "3":
             note_id = input("Enter note ID: ")
-            pass  # fetch tags for note
+            view_tags_of_note(note_id)  # fetch tags for note
 
         elif choice == "4":
             tag_id = input("Enter tag ID: ")
-            pass  # fetch notes for tag
+            view_notes_by_tag(tag_id)  # fetch notes for tag
 
         elif choice == "5":
             break
